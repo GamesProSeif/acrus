@@ -1,7 +1,7 @@
 {
   "name": "acrus",
   "description": "An efficient ExpressJs framework for creating awesome web servers",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "keywords": [
