@@ -1,9 +1,10 @@
 {
-  "name": "acrux",
+  "name": "acrus",
   "description": "An efficient ExpressJs framework for creating awesome web servers",
   "version": "1.0.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "keywords": ["express", "webserver", "server", "framework"],
   "files": [
     "lib/**/*"
   ],
@@ -13,7 +14,12 @@
     "build": "tsc",
     "build:watch": "tsc -w",
     "lint": "eslint src --ext .ts",
-    "fix": "yarn lint --fix"
+    "fix": "yarn lint --fix",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint",
+    "preversion": "npm run lint",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "express": "^4.17.1",
