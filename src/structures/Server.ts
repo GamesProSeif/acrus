@@ -1,6 +1,7 @@
 import { join } from 'path';
 import * as EventEmitter from 'events';
 import * as express from 'express';
+import * as onFinshed from 'on-finished';
 import { RouteHandler } from './RouteHandler';
 
 export interface ServerOptions {
@@ -27,12 +28,8 @@ export class Server extends EventEmitter {
 
 		this.app.use((req, res, next) => {
 			this.emit('routeStart', req, res);
+			onFinshed(res, () => this.emit('routeEnd', req, res));
 
-			req.on('data', () => {
-				// do nothing
-			});
-
-			req.on('end', () => this.emit('routeEnd', req, res));
 			next();
 		});
 	}
