@@ -29,9 +29,12 @@ export class RouteHandler extends Handler<Route> {
 						`Duplicate endpoint "${endpoint}" - id: ${module.id}`
 					);
 				}
+				this.endpoints[module.type.toUpperCase()].set(endpoint, module.id);
 			}
 		}
 		module.init(this.server);
+
+		this.server.emit('routeLoad', module);
 		return module;
 	}
 
@@ -40,7 +43,7 @@ export class RouteHandler extends Handler<Route> {
 	}
 
 	public init() {
-		const modules: Route[] = Object.values(this.modules)
+		const modules: Route[] = Array.from(this.modules.values())
 			.sort(this.sortFunction)
 			.filter((module: Route) => module.endpoint && module.endpoint.length);
 
@@ -81,5 +84,9 @@ export class RouteHandler extends Handler<Route> {
 					throw new Error(`Invalid route type "${module.type}"`);
 			}
 		}
+	}
+
+	public get endpointCount(): number {
+		return Object.values(this.endpoints).map(e => e.size).reduce((a, b) => a + b);
 	}
 }

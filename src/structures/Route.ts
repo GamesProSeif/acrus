@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { posix } from 'path';
+import { Module } from './Module';
 import { Server } from './Server';
 
 export type RequestType = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'ALL';
@@ -11,7 +12,7 @@ export interface RouteOptions {
 	root?: boolean;
 }
 
-export abstract class Route {
+export abstract class Route extends Module {
 	public id: string;
 	public server!: Server;
 	public endpoint?: string[];
@@ -20,6 +21,7 @@ export abstract class Route {
 	public root: boolean;
 
 	public constructor(id: string, options: RouteOptions = {}) {
+		super(id);
 		this.id = id;
 		this.endpoint = typeof options.endpoint === 'string'
 			? [options.endpoint]

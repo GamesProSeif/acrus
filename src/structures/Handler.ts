@@ -1,21 +1,12 @@
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
+import { Module } from './Module';
 
-export interface BaseModule {
-	id: string;
-}
-
-export interface HandlerOptions<classToHandle> {
-	classToHandle?: classToHandle;
-}
-
-export abstract class Handler<T extends BaseModule> {
+export abstract class Handler<T extends Module> {
 	public modules: Map<string, T>;
-	public classToHandle?: T;
 
-	public constructor(options: HandlerOptions<T> = {}) {
+	public constructor() {
 		this.modules = new Map();
-		this.classToHandle = options.classToHandle;
 	}
 
 	public load(path: string): T {
