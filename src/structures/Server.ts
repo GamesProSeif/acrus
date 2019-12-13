@@ -11,13 +11,29 @@ export interface ServerOptions {
 	port?: number;
 }
 
+/**
+ * Main server of the application
+ */
 export class Server extends EventEmitter {
+	/** Express app */
 	public app: express.Express;
+
+	/** port to use */
 	public port: number;
+
+	/** baseEndpoint to use */
 	public baseEndpoint: string;
+
+	/** the route handler */
 	public routeHandler: RouteHandler;
+
+	/** directory of routes */
 	public routesDirectory: string;
 
+	/**
+	 * Create new Server
+	 * @param options server options
+	 */
 	public constructor(options: ServerOptions = {}) {
 		super();
 		this.app = options.app || express();
@@ -34,6 +50,9 @@ export class Server extends EventEmitter {
 		});
 	}
 
+	/**
+	 * Initialise server
+	 */
 	public init() {
 		this.routeHandler.loadAll(this.routesDirectory);
 		this.routeHandler.init();

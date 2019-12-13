@@ -3,23 +3,41 @@ import { Handler } from './Handler';
 import { Route } from './Route';
 import { Server } from './Server';
 
+/**
+ * Route handler responsible for loading routes
+ * @extends {Handler}
+ */
 export class RouteHandler extends Handler<Route> {
+	/** server used */
 	public server: Server;
+
+	/** all endpoints mapped to id of route */
 	public endpoints: { [key: string]: Map<string, string> };
 
 	public constructor(server: Server) {
 		super();
 		this.server = server;
 		this.endpoints = {
+			/** GET endpoints */
 			GET: new Map(),
+			/** POST endpoints */
 			POST: new Map(),
+			/** PUT endpoints */
 			PUT: new Map(),
+			/** PATCH endpoints */
 			PATCH: new Map(),
+			/** DELETE endpoints */
 			DELETE: new Map(),
+			/** ALL endpoints */
 			ALL: new Map()
 		};
 	}
 
+	/**
+	 * Load a route
+	 * @param path path of route to load
+	 * @returns route loaded
+	 */
 	public load(path: string): Route {
 		const module = super.load(path);
 		if (module.endpoint) {
@@ -38,10 +56,18 @@ export class RouteHandler extends Handler<Route> {
 		return module;
 	}
 
+	/**
+	 * Sort function used to load routes
+	 * @param a first route
+	 * @param b second route
+	 */
 	public sortFunction(a: Route, b: Route): number {
 		return a.order - b.order;
 	}
 
+	/**
+	 * Initialise route handler
+	 */
 	public init() {
 		const modules: Route[] = Array.from(this.modules.values())
 			.sort(this.sortFunction)
@@ -86,6 +112,10 @@ export class RouteHandler extends Handler<Route> {
 		}
 	}
 
+	/**
+	 * get endpoints count
+	 * @readonly
+	 */
 	public get endpointCount(): number {
 		return Object.values(this.endpoints).map(e => e.size).reduce((a, b) => a + b);
 	}
