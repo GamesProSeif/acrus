@@ -19,6 +19,13 @@ This frameworks aims to have web servers built in an object oriented programming
 
 ### Getting Started
 
+Download the package using
+```bash
+$ yarn add acrus
+# or
+$ npm install acrus
+```
+
 You first need to create a server instance, providing valid options.
 
 ```js
