@@ -1,13 +1,10 @@
-import { join } from 'path';
 import * as EventEmitter from 'events';
 import * as express from 'express';
-import * as onFinshed from 'on-finished';
-import { RouteHandler } from './RouteHandler';
+import { EVENTS } from '../util/Constants';
 
 export interface ServerOptions {
 	app?: express.Express;
 	baseEndpoint?: string;
-	routesDirectory?: string;
 	port?: number;
 }
 
@@ -21,41 +18,29 @@ export class Server extends EventEmitter {
 	/** port to use */
 	public port: number;
 
-	/** baseEndpoint to use */
+	/** base endpoint to use */
 	public baseEndpoint: string;
-
-	/** the route handler */
-	public routeHandler: RouteHandler;
-
-	/** directory of routes */
-	public routesDirectory: string;
 
 	/**
 	 * Create new Server
 	 * @param options server options
 	 */
-	public constructor(options: ServerOptions = {}) {
+	public constructor({
+		app = express(),
+		port = 5000,
+		baseEndpoint = '/'
+	}: ServerOptions = {}) {
 		super();
-		this.app = options.app || express();
-		this.port = options.port || 5000;
-		this.routeHandler = new RouteHandler(this);
-		this.routesDirectory = options.routesDirectory || join(process.cwd(), 'api');
-		this.baseEndpoint = options.baseEndpoint || '/';
-
-		this.app.use((req, res, next) => {
-			this.emit('routeStart', req, res);
-			onFinshed(res, () => this.emit('routeEnd', req, res));
-
-			next();
-		});
+		this.app = app;
+		this.port = port;
+		this.baseEndpoint = baseEndpoint;
 	}
 
 	/**
-	 * Initialise server
+	 * Starts the server
+	 * @param port port to listen to
 	 */
-	public init() {
-		this.routeHandler.loadAll(this.routesDirectory);
-		this.routeHandler.init();
-		this.app.listen(this.port, () => this.emit('ready'));
+	public listen(port = this.port) {
+		this.app.listen(port, () => this.emit(EVENTS.SERVER.READY));
 	}
 }
