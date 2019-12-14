@@ -28,27 +28,73 @@ $ npm install acrus
 
 You first need to create a server instance, providing valid options.
 
+Inside `index.js`, require `acrus`, extend the `Server` class and provide desired options to `super`.
+
 ```js
 const { Server } = require('acrus');
-const express = require('express');
-const { join } = require('path');
 
-const server = new Server({
-	port: 5000,
-	routesDirectory: join(__dirname, 'api/'),
-	baseEndpoint: '/app',
-	app: express()
-});
+class MyServer extends Server {
+	constructor() {
+		super({
+			port: 5000,
+			baseEndpoint: '/app'
+		});
 
-server.init();
-
-server.on('ready', () => {
-	console.log(`server started on port ${server.port}`);
-	console.log(`routes loaded ${server.routeHandler.modules.size}`);
-});
+		// ... extending the class
+	}
+}
 ```
 
-Secondly, you need to create routes. Create a folder, called "api", and create your first route inside it, "TestGET", for example. You need to extend the class `Route` and export it.
+Secondly, you need to create a `RouteHandler` instance, providing the valid options, and adding it as a property in `MyServer#routeHandler`.
+
+> Constructor of `RouteHandler` expects a `Server` instance as first parameter, and `RouteHandlerOptions` as second one. 
+
+After creating a `RouteHandler` instance, you need to load all routes, and initialise it. Simply call `RouteHandler#loadAll` and `RouteHandler#init`. We can do this in a separate method `MyServer#_init`.
+
+For organising purposes. Define another method `MyServer#start` that will call the initialise function and listen to the port provided in the options.
+
+```js
+const { RouteHandler, Server } = require('acrus');
+const { join } = require('path');
+
+class MyServer extends Server {
+	constructor() {
+		super({
+			port: 5000,
+			baseEndpoint: '/app'
+		});
+
+		this.routeHandler = new RouteHandler(this, {
+			directory: join(__dirname, 'routes/')
+		});
+	}
+
+	_init() {
+		this.routeHandler.loadAll();
+		this.routeHandler.init();
+	}
+
+	start() {
+		this._init();
+		this.listen();
+	}
+}
+```
+
+You can then create an instance of your custom server (`MyServer`), and start it. You can use the event `ready` to know when the server has started.
+
+```js
+const server = new MyServer();
+
+server.on('ready', () => {
+	console.log(`Server started on port ${server.port}`);
+	console.log(`Modules loaded: ${server.routeHandler.modules.size}`);
+});
+
+server.start();
+```
+
+Next step is creating routes. Create a folder, called "routes", and create your first route inside it, "TestGET", for example. You need to extend the class `Route` and export it.
 
 ```js
 const { Route } = require('acrus');
@@ -56,7 +102,7 @@ const { Route } = require('acrus');
 class TestGET extends Route {
 	constructor() {
 		super('test', {
-			endpoint: 'test',
+			endpoint: '/test',
 			type: 'GET'
 		});
 	}
@@ -69,7 +115,7 @@ class TestGET extends Route {
 module.exports = TestGET;
 ```
 
-Now run the code, and hit the endpoint you just created, considering the baseEndpoint provided and the endpoint in the route, the URL should be `localhost:5000/app/test`.
+Now run the code, and hit the endpoint you just created, considering the `baseEndpoint` provided and the endpoint in the route, the URL should be `localhost:5000/app/test`.
 
 Congratulations, you now have your first web server using Acrus up and running.
 
